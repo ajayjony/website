@@ -1,0 +1,248 @@
+---
+import { Image } from "astro:assets";
+import Layout from "../layouts/Layout.astro";
+import { homePageContent, identity } from "../config";
+import SocialLink from "../components/SocialLink.astro";
+import Link from "../components/Link.astro";
+import { getCollection } from "astro:content";
+
+const posts = await getCollection("posts");
+posts.sort((a, b) => {
+  const dateA = new Date(a.data.pubDate).getTime();
+  const dateB = new Date(b.data.pubDate).getTime();
+  return dateB - dateA;
+});
+posts.splice(2);
+---
+
+<script>
+  import gsap from "gsap";
+
+  const particles = document.querySelectorAll(".particle");
+
+  const toOptions = {
+    duration: 0.6,
+    ease: "power4.out",
+  };
+
+  particles.forEach((particle) => {
+    if (particle instanceof HTMLElement) {
+      const xTo = gsap.quickTo(particle, "x", toOptions);
+      const yTo = gsap.quickTo(particle, "y", toOptions);
+
+      const offset = Number(particle.dataset.offset);
+
+      document.addEventListener("mousemove", (e) => {
+        const { clientX, clientY } = e;
+        const { height, width, left, top } = particle.getBoundingClientRect();
+        const x = clientX - (left + width / 2);
+        const y = clientY - (top + height / 2);
+        xTo(x * (offset - 0.001));
+        yTo(y * (offset - 0.001));
+      });
+
+      const startOpacity = Number(particle.dataset.startOpacity);
+
+      document.addEventListener("scroll", (e) => {
+        particle.style.opacity = (
+          startOpacity -
+          window.scrollY / 500
+        ).toString();
+      });
+    }
+  });
+
+  toOptions.duration = 0.5;
+  toOptions.ease = "elastic.out(1, 0.4)";
+  const cards = document.querySelectorAll(".card");
+
+  cards.forEach((card) => {
+    if (card instanceof HTMLElement) {
+      const cardBackground = card.querySelector(".card-background");
+      const cardBefore = card.querySelector(".card-b");
+      const xToBG = gsap.quickTo(cardBackground, "x", toOptions);
+      const yToBG = gsap.quickTo(cardBackground, "y", toOptions);
+      const xToBefore = gsap.quickTo(cardBefore, "x", toOptions);
+      const yToBefore = gsap.quickTo(cardBefore, "y", toOptions);
+
+      card.addEventListener("mousemove", (e) => {
+        const { clientX, clientY } = e;
+        if (cardBackground === null || cardBefore === null) return;
+        const { height, width, left, top } =
+          cardBackground.getBoundingClientRect();
+        const x = clientX - (left + width / 2);
+        const y = clientY - (top + height / 2);
+        xToBG(x * 0.05);
+        yToBG(y * 0.05);
+        xToBefore(x * 0.05);
+        yToBefore(y * 0.05);
+      });
+
+      card.addEventListener("mouseleave", (e) => {
+        xToBG(0);
+        yToBG(0);
+        xToBefore(0);
+        yToBefore(0);
+      });
+    }
+  });
+
+  const cardsWrapper = document.getElementById("cards");
+  if (cardsWrapper) {
+    cardsWrapper.onmousemove = (e) => {
+      for (const card of document.getElementsByClassName("card")) {
+        const rect = card.getBoundingClientRect(),
+          x = e.clientX - rect.left,
+          y = e.clientY - rect.top;
+
+        if (card instanceof HTMLElement) {
+          card.style.setProperty("--mouse-x", `${x}px`);
+          card.style.setProperty("--mouse-y", `${y}px`);
+        }
+      }
+    };
+  }
+
+  const currentDate = new Date();
+  const timeFormatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Europe/Berlin",
+    hour12: false,
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+  });
+
+  const localTimeElement = document.getElementById("local-time");
+  const currentLocalTime = timeFormatter.format(currentDate);
+  if (localTimeElement instanceof HTMLElement) {
+    localTimeElement.innerText = currentLocalTime;
+  }
+  setInterval(() => {
+    const currentDate = new Date();
+    const currentLocalTime = timeFormatter.format(currentDate);
+    if (localTimeElement instanceof HTMLElement) {
+      localTimeElement.innerText = currentLocalTime;
+    }
+  }, 1000);
+</script>
+
+<Layout seo={homePageContent.seo}>
+  <section class="mt-10 max-w-2xl mx-auto px-6">
+    <h1 id="animated-text" class="font-bold text-3xl mb-1">{identity.name}</h1>
+    <p class="opacity-60 mb-10">{homePageContent.role}</p>
+    <div class="flex flex-col min-[520px]:flex-row gap-6 mb-8">
+      <div class="grid place-items-center relative w-fit mx-auto h-[300px]">
+        <Image
+          src={identity.logo}
+          alt={identity.name}
+          width={100}
+          height={100}
+          class="rounded-full w-40 h-40 mt-8 object-contain"
+        />
+        <div class="hidden min-[400px]:block -z-10">
+          <div
+            class="particle rounded-lg bg-[#D9D9D9] w-12 h-12 absolute -bottom-4 left-4 -rotate-6 scale-100 opacity-[53%]"
+            data-offset="0.0257"
+            data-start-opacity="0.53"
+          >
+          </div>
+          <div
+            class="particle rounded-lg bg-[#D9D9D9] w-12 h-12 absolute -bottom-4 -right-2 rotate-[20deg] scale-50 opacity-[17%]"
+            data-offset="0.060"
+            data-start-opacity="0.17"
+          >
+          </div>
+          <div
+            class="particle rounded-lg bg-[#D9D9D9] w-12 h-12 absolute bottom-20 -right-20 rotate-[20deg] scale-75 opacity-[27%]"
+            data-offset="0.044"
+            data-start-opacity="0.27"
+          >
+          </div>
+          <div
+            class="particle rounded-lg bg-[#D9D9D9] w-12 h-12 absolute top-10 -right-28 rotate-[-8deg] scale-100 opacity-[37%]"
+            data-offset="0.0238"
+            data-start-opacity="0.37"
+          >
+          </div>
+          <div
+            class="particle rounded-lg bg-[#D9D9D9] w-12 h-12 absolute top-0 right-0 rotate-[14deg] scale-[30%] opacity-[71%]"
+            data-offset="0.042"
+            data-start-opacity="0.71"
+          >
+          </div>
+          <div
+            class="particle rounded-lg bg-[#D9D9D9] w-12 h-12 absolute top-0 -left-14 rotate-[-10deg] scale-[55%] opacity-[27%]"
+            data-offset="0.055"
+            data-start-opacity="0.27"
+          >
+          </div>
+          <div
+            class="particle rounded-lg bg-[#D9D9D9] w-12 h-12 absolute top-32 -left-20 rotate-[-40deg] scale-75 opacity-[53%]"
+            data-offset="0.021"
+            data-start-opacity="0.53"
+          >
+          </div>
+        </div>
+      </div>
+      <div class="group flex flex-col justify-center gap-2 w-fit">
+        {
+          homePageContent.socialLinks.map((link) => (
+            <SocialLink
+              title={link.title}
+              url={link.url}
+              icon={link.icon}
+              external={link.external}
+            />
+          ))
+        }
+      </div>
+    </div>
+    <p class="max-w-md mb-8">
+      {homePageContent.description}
+    </p>
+    <div class="flex items-center gap-4 group w-fit">
+      {
+        homePageContent.links.map((link) => (
+          <Link text={link.title} href={link.url} external={link.external} />
+        ))
+      }
+    </div>
+  </section>
+  <section class="mt-20 max-w-2xl mx-auto px-6">
+    <h2 class="mb-8">Latest Posts</h2>
+    <div class="grid grid-cols-1 gap-10 sm:gap-6 mb-10">
+      {
+        posts.map((post) => (
+          <a
+            href={`/blog/${post.id}`}
+            class=" sm:flex sm:flex-row-reverse sm:justify-between sm:gap-6 post"
+          >
+            <Image
+              src={post.data.image.url}
+              alt={post.data.image.url}
+              width={100}
+              height={100}
+              class={"rounded-lg w-[100px] h-[100px] object-cover"}
+            />
+            <div class="mt-4 sm:my-auto">
+              <p class="opacity-60 mb-2">
+                {post.data.pubDate.toLocaleDateString()}
+              </p>
+              <h3 class="font-medium hover-underline">{post.data.title}</h3>
+              <p class="text-sm opacity-60 mt-2 mb-3">
+                {post.data.description}
+              </p>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+    <div class="text-center">
+      <a
+        href="/blog"
+        class="underline underline-offset-4 opacity-60 hover:opacity-100 transition-opacity"
+        >View all</a
+      >
+    </div>
+  </section>
+</Layout>

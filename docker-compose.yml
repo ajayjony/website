@@ -1,0 +1,11 @@
+services:
+  mywebsite:
+    container_name: mywebsite
+    image: mywebsite
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      target: runtime
+    ports:
+      - "8080:8080"
+    restart: always
